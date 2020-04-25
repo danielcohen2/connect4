@@ -1,0 +1,70 @@
+html,
+body {
+	height: 100%;
+	margin: 0;
+}
+
+.container {
+	width: 90%;
+	border: 1px red solid;
+	margin: auto;
+	text-align: center;
+}
+
+#gameContainer {
+	width: 26.5rem;
+	height: 28rem;
+	margin: 1rem auto 0 auto;
+}
+
+#board {
+	height: 90%;
+	/* border: 1px yellow solid; */
+}
+
+#moves {
+	margin-top: .25rem;
+	text-align: left;
+}
+
+/* #board {
+	width: 26.5rem;
+	height: 26rem;
+	margin: 1rem auto 0 auto;
+	
+} */
+
+.row {
+	display: flex;
+	height: 14.28%;
+}
+div {
+	flex: auto;
+}
+.row div {
+	border: .1rem yellow solid;
+	display: flex; /* need this so that circle class works */
+	/* justify-content: center;
+	align-items: center; */
+	padding: .1rem .1rem 0 .1rem;
+}
+#topRow div {
+	border: none;
+}
+h1 {
+	margin: .5rem 0;
+	line-height: 1.5rem;
+}
+
+.circle {
+	height: 100%;
+	width: 100%;
+	background-color: green;
+	border-radius: 50%;
+}
+.red {
+	background-color: red;
+}
+.blue {
+	background-color: blue;
+}
