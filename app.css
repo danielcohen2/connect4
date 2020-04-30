@@ -6,9 +6,27 @@ body {
 
 .container {
 	width: 90%;
-	border: 1px red solid;
+	/* border: 1px red solid; */
 	margin: auto;
 	text-align: center;
+	background: radial-gradient(circle, rgba(222, 249, 190, 1) 60%, rgba(162, 209, 212, 1) 95%);
+}
+
+#scoreboardSpan {
+	margin-right: 1rem;
+}
+
+#newGameButton {
+	margin-left: 1rem;
+	border-radius: .4rem;
+	border: 1px rgb(222, 249, 190) solid;
+	box-shadow: 0 0.1rem 0.2rem 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+	background: linear-gradient(to top right, rgba(170, 190, 255, 1) 0%, rgba(255, 255, 255, 1) 100%);
+	padding: .25rem;
+}
+
+#newGameButton:hover {
+	background: yellow;
 }
 
 #gameContainer {

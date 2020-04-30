@@ -329,7 +329,7 @@ function guiPlayerMove(player, col) {
 
 function updateScoreBoard() {
 	//game still going - change game's playerTurn and game's current player
-	var scoreboard = document.querySelector('#scoreboard');
+	var scoreboard = document.querySelector('#scoreboardSpan');
 	scoreboard.textContent = '';
 	scoreboard.classList.remove('redPlayer', 'bluePlayer');
 	var currColor = game.currPlayer.color;
