@@ -18,21 +18,28 @@ body {
 }
 
 #board {
-	height: 90%;
+	height: 84%;
 	/* border: 1px yellow solid; */
 }
 
-#moves {
+#columnNums {
+	display: flex;
+	justify-content: space-around;
 	margin-top: .25rem;
-	text-align: left;
 }
 
-/* #board {
-	width: 26.5rem;
-	height: 26rem;
-	margin: 1rem auto 0 auto;
-	
-} */
+#moves {
+	text-align: left;
+	margin-top: .5rem;
+}
+
+.redPlayer {
+	color: red;
+}
+
+.bluePlayer {
+	color: blue;
+}
 
 .row {
 	display: flex;
@@ -42,10 +49,9 @@ div {
 	flex: auto;
 }
 .row div {
+	/*this is each cell on the board*/
 	border: .1rem yellow solid;
 	display: flex; /* need this so that circle class works */
-	/* justify-content: center;
-	align-items: center; */
 	padding: .1rem .1rem 0 .1rem;
 }
 #topRow div {

@@ -22,7 +22,7 @@
 
     <div class="container">
         <h1>Connect 4</h1>
-        <!-- <div> scoreboard? </div> -->
+        <div><span id="scoreboard" class="redPlayer">Red's Turn</span><span id="newGame"></span></div>
         <div id="gameContainer">
             <div id="board">
                 <!-- this topRow is above the board -->
@@ -90,8 +90,11 @@
                     <div> <span></span> </div>
                 </div>
             </div>
+            <div id="columnNums">
+                <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span></div>
             <div id="moves">
-                Player1: <span id="redPlayerMoves"></span> <br> Player2: <span id="bluePlayerMoves"></span>
+                <span class="redPlayer"> Red Moves: </span><span id="redPlayerMoves"></span> <br>
+                <span class="bluePlayer"> Blue Moves: </span><span id="bluePlayerMoves"></span>
             </div>
         </div>
 

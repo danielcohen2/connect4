@@ -1,5 +1,6 @@
-//e for empty spot, r for red, b for blue
-var game = {
+//global variables
+var initGame = {
+	//e for empty spot, r for red, b for blue
 	board: [
 		[ 'e', 'e', 'e', 'e', 'e', 'e', 'e' ],
 		[ 'e', 'e', 'e', 'e', 'e', 'e', 'e' ],
@@ -18,122 +19,149 @@ var game = {
 	},
 	currPlayer: null,
 	player1Turn: true,
-	currentlyPlaying: true
+	currentlyPlaying: true,
+	winner: null,
+	tie: false
 };
+var game = initGame;
 game.currPlayer = game.player1;
+
 var rows = game.board.length;
 var cols = game.board[0].length;
+var numInARow = 4;
+
+//functions for behind the scenes game logic
 
 //checks to see if spot on board is empty
 function isSpotEmpty(r, c) {
-	if (game.board[r][c] == 'e') return true;
-	else return false;
+	return game.board[r][c] == 'e';
 }
 
 //checks to see if column of board is full
 function isColFull(c) {
-	var countEmptySpots = 0;
 	for (var r = 0; r < rows; r++) {
-		if (isSpotEmpty(r, c)) {
-			countEmptySpots++;
-			break;
-		}
+		if (isSpotEmpty(r, c)) return false; //if there's an empty spot in the column then it is not full
 	}
-	if (countEmptySpots != 0) return false;
-	else return true;
+	return true;
 }
 
 //checks to see if board is full
 function isBoardFull() {
-	var countEmptySpots = 0;
 	for (var r = 0; r < rows; r++) {
 		for (var c = 0; c < cols; c++) {
-			if (isSpotEmpty(r, c)) countEmptySpots++;
+			if (isSpotEmpty(r, c)) return false;
 		}
 	}
-	if (countEmptySpots != 0) return false;
-	else {
-		System.out.println('Board is full!');
-		return true;
-	}
-}
-
-function resetGame() {
-	game = {
-		board: [
-			[ 'e', 'e', 'e', 'e', 'e', 'e', 'e' ],
-			[ 'e', 'e', 'e', 'e', 'e', 'e', 'e' ],
-			[ 'e', 'e', 'e', 'e', 'e', 'e', 'e' ],
-			[ 'e', 'e', 'e', 'e', 'e', 'e', 'e' ],
-			[ 'e', 'e', 'e', 'e', 'e', 'e', 'e' ],
-			[ 'e', 'e', 'e', 'e', 'e', 'e', 'e' ]
-		],
-		player1: {
-			color: 'red',
-			moves: []
-		},
-		player2: {
-			color: 'blue',
-			moves: []
-		},
-		currPlayer: game.player1,
-		player1Turn: true,
-		currentlyPlaying: true
-	};
+	console.log('Board is full!');
+	return true;
 }
 
 //checks to see if there are 4 spots in a row for the inputted player (checks horizontal, vertical, and diagonal combinations)
 function checkWinner(player) {
-	if (checkHorizontalWinner(player) || checkVerticalWinner(player) || checkDiagonalWinner(player)) {
-		console.log('Player ' + player + ' is the WINNER!!!');
-		return true;
-	} else return false;
+	var horizontalWinner = checkHorizontalWinner(player);
+	var verticalWinner = checkVerticalWinner(player);
+	var diagonalWinner = checkDiagonalWinner(player);
+	if (horizontalWinner.length !== 0) {
+		return horizontalWinner;
+	} else if (verticalWinner.length !== 0) {
+		return verticalWinner;
+	} else if (diagonalWinner.length !== 0) {
+		return diagonalWinner;
+	} else return [];
 }
+
+// //checks to see if there are 4 spots in a row for the inputted player (checks horizontal, vertical, and diagonal combinations)
+// function checkWinner(player) {
+// 	if (checkHorizontalWinner(player) || checkVerticalWinner(player) || checkDiagonalWinner(player)) {
+// 		console.log('Player ' + player + ' is the WINNER!!!');
+// 		return true;
+// 	} else return false;
+// }
 
 //checks each row to see if there are 4 moves in a row by player horizontally
 function checkHorizontalWinner(player) {
 	for (var r = 0; r < rows; r++) {
 		//loops through and checks each row
-		if (horizontal4InARow(r, player)) return true;
+		var coords = horizontalNInARow(r, player);
+		if (coords.length !== 0) return coords;
 	}
-	return false;
+	return [];
 }
+
+// //checks each row to see if there are 4 moves in a row by player horizontally
+// function checkHorizontalWinner(player) {
+// 	for (var r = 0; r < rows; r++) {
+// 		//loops through and checks each row
+// 		if (horizontal4InARow(r, player)) return true;
+// 	}
+// 	return false;
+// }
 
 /**
 	 * checks to see if there are 4 moves in a row horizontally 
 	 	if 2 characters next to each other are same character, increases counter by 1. if different, then resets counter to 1
-		goes pair by pair through whole row, if counter gets to 4, then returns true.
+		goes pair by pair through whole row, if counter gets to 4, then returns the coordinates of the cells.
 		
 	 * @param row - row number you're searching through
 	 * @param player - player's character 
-	 * @return - consecInARow - true if there are 4 characters in a row horizontally
+	 * @return - coords - either empty array, or array of tuples of all coords of winning combination
 	 */
-function horizontal4InARow(row, player) {
-	var numInARow = 4;
-	var consecInARow = false;
+function horizontalNInARow(row, player) {
+	var coords = [];
 	var counter = 1; //always have 1 in a row
 	for (var col = 0; col < cols - 1; col++) {
-		//loop through cells in the row
+		//loop through columns (cells) in the row
 		if (game.board[row][col] === player && game.board[row][col + 1] === player) {
-			//if current column and the next column in row are same player than increase counter
+			//if current column cell and the next column cell in the row are the same player than increase counter
 			counter++;
 			if (counter >= numInARow) {
-				//if the counter has reached the desired 4 in a row then return true
-				consecInARow = true;
-				break;
+				//if the counter has reached the desired numberInARow (4) then push all of the winning coordinates to coords and then return coords
+				for (var i = 1; i <= numInARow; i++) {
+					coords.push([ row, col - numInARow + i + 1 ]); //need to add 1 at the end because the last col is the 2nd to last coord
+				}
+				return coords;
 			}
+			//if pair of cells doesnt match, then counter is back to 1
 		} else counter = 1;
 	}
-	return consecInARow;
+	return coords;
 }
+
+// /**
+// 	 * checks to see if there are 4 moves in a row horizontally
+// 	 	if 2 characters next to each other are same character, increases counter by 1. if different, then resets counter to 1
+// 		goes pair by pair through whole row, if counter gets to 4, then returns true.
+
+// 	 * @param row - row number you're searching through
+// 	 * @param player - player's character
+// 	 * @return - consecInARow - true if there are 4 characters in a row horizontally
+// 	 */
+// function horizontal4InARow(row, player) {
+// 	var consecInARow = false;
+// 	var counter = 1; //always have 1 in a row
+// 	for (var col = 0; col < cols - 1; col++) {
+// 		//loop through cells in the row
+// 		if (game.board[row][col] === player && game.board[row][col + 1] === player) {
+// 			//if current column and the next column in row are same player than increase counter
+// 			counter++;
+// 			if (counter >= numInARow) {
+// 				//if the counter has reached the desired 4 in a row then return true
+// 				consecInARow = true;
+// 				break;
+// 			}
+// 		} else counter = 1;
+// 	}
+// 	return consecInARow;
+// }
 
 //checks each column to see if there are 4 moves in a row by a player vertically
 function checkVerticalWinner(player) {
 	for (var col = 0; col < cols; col++) {
 		//loops through and checks each column
-		if (vertical4InARow(col, player)) return true;
+		var coords = verticalNInARow(col, player);
+		if (coords.length !== 0) return coords;
 	}
-	return false;
+	return [];
 }
 
 /**
@@ -145,9 +173,8 @@ function checkVerticalWinner(player) {
 	 * @param player - player's character
 	 * @return - consecInARow - true if there are 4 characters in a row vertically
 	 */
-function vertical4InARow(col, player) {
-	var numInARow = 4;
-	var consecInARow = false;
+function verticalNInARow(col, player) {
+	var coords = [];
 	var counter = 1; //always have 1 in a row
 	for (var r = 0; r < rows - 1; r++) {
 		//loop through cells in the column
@@ -157,24 +184,32 @@ function vertical4InARow(col, player) {
 			if (counter >= numInARow) {
 				//if the counter has reached the desired 4 in a row then return true
 				//want to get these coords now: r-numInARow+1 will be the row of the first in the sequence -> return array of arrays with coords for all spots?
-				consecInARow = true;
-				break;
+				for (var i = 1; i <= numInARow; i++) {
+					coords.push([ r - numInARow + i + 1, col ]); //need to add 1 at the end because the last col is the 2nd to last coord
+				}
+				return coords;
 			}
 		} else counter = 1;
 	}
-	return consecInARow;
+	return coords;
 }
 
 //checks all possible diagonals to see if there are 4 moves in a row by player
 function checkDiagonalWinner(player) {
-	if (checkTLBR_DiagWinner(player) || checkTRBL_DiagWinner(player)) return true;
-	else return false;
+	if (checkTLBR_DiagWinner(player).length !== 0) return checkTLBR_DiagWinner(player);
+	else if (checkTRBL_DiagWinner(player).length !== 0) return checkTRBL_DiagWinner(player);
+	else return [];
 }
+
+// //checks all possible diagonals to see if there are 4 moves in a row by player
+// function checkDiagonalWinner(player) {
+// 	if (checkTLBR_DiagWinner(player) || checkTRBL_DiagWinner(player)) return true;
+// 	else return false;
+// }
 
 //checks all possible diagonals of 4 length going from top left to bottom right
 function checkTLBR_DiagWinner(player) {
-	var numInARow = 4;
-	var consec = false;
+	var coords = [];
 	var counter = 1;
 	for (var r = 0; r <= rows - numInARow; r++) {
 		for (var col = 0; col <= cols - numInARow; col++) {
@@ -184,20 +219,43 @@ function checkTLBR_DiagWinner(player) {
 					//starting at the (r,c) point found above, goes in a diagonal in the south-east direction to see if there are N consecutive spots (checking in pairs)
 					counter++;
 					if (counter >= numInARow) {
-						consec = true;
-						break;
+						for (var i = 1; i <= numInARow; i++) {
+							coords.push([ r + i - 1, col + i - 1 ]);
+						}
+						console.log(coords);
+						return coords;
 					}
 				} else counter = 1;
 			}
 		}
 	}
-	return consec;
+	return coords;
 }
+// //checks all possible diagonals of 4 length going from top left to bottom right
+// function checkTLBR_DiagWinner(player) {
+// 	var consec = false;
+// 	var counter = 1;
+// 	for (var r = 0; r <= rows - numInARow; r++) {
+// 		for (var col = 0; col <= cols - numInARow; col++) {
+// 			//looks at only the possible starting places where you can make a N-length diagonal from TL to BR
+// 			for (var d = 0; d < numInARow - 1; d++) {
+// 				if (game.board[r + d][col + d] === player && game.board[r + d + 1][col + d + 1] === player) {
+// 					//starting at the (r,c) point found above, goes in a diagonal in the south-east direction to see if there are N consecutive spots (checking in pairs)
+// 					counter++;
+// 					if (counter >= numInARow) {
+// 						consec = true;
+// 						break;
+// 					}
+// 				} else counter = 1;
+// 			}
+// 		}
+// 	}
+// 	return consec;
+// }
 
 //checks all possible diagonals of 4 length going from top right to bottom left
 function checkTRBL_DiagWinner(player) {
-	var numInARow = 4;
-	var consec = false;
+	var coords = [];
 	var counter = 1;
 	for (var r = 0; r <= rows - numInARow; r++) {
 		for (var col = cols - 1; col >= numInARow - 1; col--) {
@@ -207,28 +265,77 @@ function checkTRBL_DiagWinner(player) {
 				if (game.board[r + d][col - d] === player && game.board[r + d + 1][col - d - 1] === player) {
 					counter++;
 					if (counter >= numInARow) {
-						consec = true;
-						break;
+						for (var i = 1; i <= numInARow; i++) {
+							coords.push([ r + i - 1, col - i + 1 ]); //since row and column are at the top right coordinates of the diagonol, we need to add to the row coordinates since we're going down, and we need to subtract from the column coordinate since we're going left
+						}
+						console.log(coords);
+						return coords;
 					}
 				} else counter = 1;
 			}
 		}
 	}
-	return consec;
+	return coords;
 }
+
+// //checks all possible diagonals of 4 length going from top right to bottom left
+// function checkTRBL_DiagWinner(player) {
+// 	var consec = false;
+// 	var counter = 1;
+// 	for (var r = 0; r <= rows - numInARow; r++) {
+// 		for (var col = cols - 1; col >= numInARow - 1; col--) {
+// 			//looks at only the possible starting places where you can make a N-length diagonal from TL to BR
+// 			for (var d = 0; d < numInARow - 1; d++) {
+// 				//starting at the (r,c) point found above, goes in a diagonal in the south-west direction to see if there are N consecutive spots (checking in pairs)
+// 				if (game.board[r + d][col - d] === player && game.board[r + d + 1][col - d - 1] === player) {
+// 					counter++;
+// 					if (counter >= numInARow) {
+// 						consec = true;
+// 						break;
+// 					}
+// 				} else counter = 1;
+// 			}
+// 		}
+// 	}
+// 	return consec;
+// }
 
 //gets called after a move - either there was a winner, board is full, or it initiates game play for next move
 function updateGameStatus() {
-	if (checkWinner(game.currPlayer.color)) {
+	var winner = checkWinner(game.currPlayer.color);
+	if (winner.length !== 0) {
 		console.log('WINNER');
+		highlightWinningCells(winner);
 		game.currentlyPlaying = false;
+		game.winner = game.currPlayer;
 	} else if (isBoardFull()) {
 		console.log('tie');
 		game.currentlyPlaying = false;
+		game.tie = true;
 	} else {
 		initiateNextMove();
 	}
+	updateScoreBoard();
 }
+
+//resets the game to initial board, playersMoves, etc.
+function resetGame() {
+	game = initGame;
+	game.currPlayer = game.player1;
+}
+
+// //gets called after a move - either there was a winner, board is full, or it initiates game play for next move
+// function updateGameStatus() {
+// 	if (checkWinner(game.currPlayer.color)) {
+// 		console.log('WINNER');
+// 		game.currentlyPlaying = false;
+// 	} else if (isBoardFull()) {
+// 		console.log('tie');
+// 		game.currentlyPlaying = false;
+// 	} else {
+// 		initiateNextMove();
+// 	}
+// }
 
 function initiateNextMove() {
 	//game still going - change game's playerTurn and game's current player
@@ -296,7 +403,7 @@ function removeTop() {
 function dropPiece() {
 	if (game.currentlyPlaying) {
 		var col = parseInt(this.id.slice(-1)); //"this" is the div that has the event listener that was triggered - we want to grab the ID of the cell and then take the last character from the string which is the col number
-		guiPlayerMove(game.currPlayer, col);
+		if (guiPlayerMove(game.currPlayer, col) === null) return;
 		//check to see if game is still going on
 		updateGameStatus();
 
@@ -317,8 +424,39 @@ function guiPlayerMove(player, col) {
 		var colDisplay = coords[1];
 		displayCircleOnBoard(rowDisplay, colDisplay);
 		displayMovesHistory(player);
+		return coords;
 	} catch (error) {
-		console.log('invalid move');
+		console.log('gui player invalid move');
+		return null;
+	}
+}
+
+function updateScoreBoard() {
+	//game still going - change game's playerTurn and game's current player
+	var scoreboard = document.querySelector('#scoreboard');
+	scoreboard.textContent = '';
+	scoreboard.classList.remove('redPlayer', 'bluePlayer');
+	var currColor = game.currPlayer.color;
+	if (game.currentlyPlaying) {
+		scoreboard.textContent = currColor.charAt(0).toUpperCase() + currColor.slice(1) + "'s Turn";
+		scoreboard.classList.add(currColor + 'Player');
+	} else {
+		if (game.tie) {
+			scoreboard.textContent = 'Tie Game!';
+		}
+		if (game.winner) {
+			scoreboard.textContent = currColor.charAt(0).toUpperCase() + currColor.slice(1) + ' is the WINNER!!!';
+			scoreboard.classList.add(currColor + 'Player');
+		}
+	}
+}
+
+function highlightWinningCells(winningCellCoords) {
+	for (var i = 0; i < winningCellCoords.length; i++) {
+		var rowDisplay = winningCellCoords[i][0] + 1;
+		var colDisplay = winningCellCoords[i][1];
+		var div = document.querySelector('#row' + rowDisplay + 'Col' + colDisplay);
+		div.style.border = '.1rem green solid';
 	}
 }
 
