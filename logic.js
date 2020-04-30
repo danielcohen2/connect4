@@ -11,11 +11,13 @@ var initGame = {
 	],
 	player1: {
 		color: 'red',
-		moves: []
+		moves: [],
+		wins: 0
 	},
 	player2: {
 		color: 'blue',
-		moves: []
+		moves: [],
+		wins: 0
 	},
 	currPlayer: null,
 	player1Turn: true,
@@ -217,6 +219,7 @@ function updateGameStatus() {
 		highlightWinningCells(winner);
 		game.currentlyPlaying = false;
 		game.winner = game.currPlayer;
+		game.currPlayer.wins++;
 	} else if (isBoardFull()) {
 		console.log('tie');
 		game.currentlyPlaying = false;
@@ -227,9 +230,13 @@ function updateGameStatus() {
 	updateScoreBoard();
 }
 
-//resets the game to initial board, playersMoves, etc.
+//resets the game to initial board, playersMoves, etc. - except keeps the win tallies
 function resetGame() {
+	var player1Wins = game.player1.wins;
+	var player2Wins = game.player2.wins;
 	game = initGame;
+	game.player1.wins = player1Wins;
+	game.player2.wins = player2Wins;
 	game.currPlayer = game.player1;
 }
 
@@ -329,20 +336,22 @@ function guiPlayerMove(player, col) {
 
 function updateScoreBoard() {
 	//game still going - change game's playerTurn and game's current player
-	var scoreboard = document.querySelector('#scoreboardSpan');
-	scoreboard.textContent = '';
-	scoreboard.classList.remove('redPlayer', 'bluePlayer');
+	var scoreboardInfo = document.querySelector('#scoreboardInfo');
+	scoreboardInfo.textContent = '';
+	scoreboardInfo.classList.remove('redPlayer', 'bluePlayer');
 	var currColor = game.currPlayer.color;
 	if (game.currentlyPlaying) {
-		scoreboard.textContent = currColor.charAt(0).toUpperCase() + currColor.slice(1) + "'s Turn";
-		scoreboard.classList.add(currColor + 'Player');
+		scoreboardInfo.textContent = currColor.charAt(0).toUpperCase() + currColor.slice(1) + "'s Turn";
+		scoreboardInfo.classList.add(currColor + 'Player');
 	} else {
 		if (game.tie) {
-			scoreboard.textContent = 'Tie Game!';
+			scoreboardInfo.textContent = 'Tie Game!';
 		}
 		if (game.winner) {
-			scoreboard.textContent = currColor.charAt(0).toUpperCase() + currColor.slice(1) + ' is the WINNER!!!';
-			scoreboard.classList.add(currColor + 'Player');
+			scoreboardInfo.textContent = currColor.charAt(0).toUpperCase() + currColor.slice(1) + ' is the WINNER!!!';
+			scoreboardInfo.classList.add(currColor + 'Player');
+			var scoreboardScore = document.querySelector('#' + currColor + 'Wins');
+			scoreboardScore.textContent = game.currPlayer.wins;
 		}
 	}
 }
@@ -352,7 +361,7 @@ function highlightWinningCells(winningCellCoords) {
 		var rowDisplay = winningCellCoords[i][0] + 1;
 		var colDisplay = winningCellCoords[i][1];
 		var div = document.querySelector('#row' + rowDisplay + 'Col' + colDisplay);
-		div.style.border = '.1rem green solid';
+		div.classList.add('winningCell');
 	}
 }
 
