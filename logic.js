@@ -197,7 +197,7 @@ function checkTRBL_DiagWinner(player) {
 					counter++;
 					if (counter >= numInARow) {
 						for (var i = 0; i < numInARow; i++) {
-							coords.push([ r + i, col - i + 2 ]); //since row and column are at the top right coordinates of the diagonol, we need to add to the row coordinates since we're going down, and we need to subtract from the column coordinate since we're going left
+							coords.push([ r + i, col - i ]); //since row and column are at the top right coordinates of the diagonol, we need to add to the row coordinates since we're going down, and we need to subtract from the column coordinate since we're going left
 						}
 						console.log(coords);
 						return coords;
