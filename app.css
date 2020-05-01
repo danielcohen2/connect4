@@ -16,13 +16,6 @@ h1 {
 	margin: .5rem 0;
 }
 
-/* #scoreboard {
-	display: flex;
-	justify-content: space-around;
-	width: 60%;
-	margin: auto;
-} */
-
 #newGameButton {
 	margin: 0 2.5rem;
 	border-radius: .4rem;
@@ -96,5 +89,6 @@ div {
 }
 
 .row .winningCell {
+	/* need it to be .row .winningCell to make sure that it overwrites the css for each cell (.row div) */
 	border: .1rem green solid;
 }

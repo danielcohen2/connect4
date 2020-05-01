@@ -1,5 +1,4 @@
-//global variables
-var initGame = {
+var game = {
 	//e for empty spot, r for red, b for blue
 	board: [
 		[ 'e', 'e', 'e', 'e', 'e', 'e', 'e' ],
@@ -25,9 +24,9 @@ var initGame = {
 	winner: null,
 	tie: false
 };
-var game = initGame;
 game.currPlayer = game.player1;
 
+//helpful global variables
 var rows = game.board.length;
 var cols = game.board[0].length;
 var numInARow = 4;
@@ -58,6 +57,14 @@ function isBoardFull() {
 	return true;
 }
 
+function resetBoard() {
+	for (var r = 0; r < rows; r++) {
+		for (var c = 0; c < cols; c++) {
+			game.board[r][c] = 'e';
+		}
+	}
+}
+
 //checks to see if there are 4 spots in a row for the inputted player (checks horizontal, vertical, and diagonal combinations)
 //	and if there is it returns array of tuples of the coordinates, if not returns empty array
 function checkWinner(player) {
@@ -73,7 +80,7 @@ function checkWinner(player) {
 	} else return [];
 }
 
-//checks each row to see if there are 4 moves in a row by player horizontally - returns array of tuples of coordinates if so, if not returns empty array
+//checks each row to see if there are 4 moves in a row by player horizontally
 function checkHorizontalWinner(player) {
 	for (var r = 0; r < rows; r++) {
 		//loops through and checks each row
@@ -85,12 +92,12 @@ function checkHorizontalWinner(player) {
 
 /**
 	 * checks to see if there are 4 moves in a row horizontally 
-	 	if 2 characters next to each other are same character, increases counter by 1. if different, then resets counter to 1
+	 	if 2 cells next to each other are same player, increases counter by 1. if different, then resets counter to 1
 		goes pair by pair through whole row, if counter gets to 4, then returns the coordinates of the cells.
 		
 	 * @param row - row number you're searching through
 	 * @param player - player's character 
-	 * @return - coords - either empty array, or array of tuples of all coords of winning combination
+	 * @return - coords - either empty array, or array of tuples of all coordinates of winning combination
 	 */
 function horizontalNInARow(row, player) {
 	var coords = [];
@@ -103,7 +110,7 @@ function horizontalNInARow(row, player) {
 			if (counter >= numInARow) {
 				//if the counter has reached the desired numberInARow (4) then push all of the winning coordinates to coords and then return coords
 				for (var i = 1; i <= numInARow; i++) {
-					coords.push([ row, col - numInARow + i + 1 ]); //need to add 1 at the end because the last col is the 2nd to last coord
+					coords.push([ row, col - numInARow + i + 1 ]); //col is currently at the 3rd winning spot so need to add 1 to mimic being at the last spot. then subtract by numInARow and go through a loop for numInARow
 				}
 				return coords;
 			}
@@ -113,7 +120,7 @@ function horizontalNInARow(row, player) {
 	return coords;
 }
 
-//checks each column to see if there are 4 moves in a row by a player vertically - returns array of tuples of coordinates if so, if not returns empty array
+//checks each column to see if there are 4 moves in a row by a player vertically
 function checkVerticalWinner(player) {
 	for (var col = 0; col < cols; col++) {
 		//loops through and checks each column
@@ -125,12 +132,12 @@ function checkVerticalWinner(player) {
 
 /**
 	 * checks to see if there are 4 moves in a row vertically 
-		if 2 characters next to each other are same character, increases counter by 1. if different, then resets counter to 1
+		if 2 cells next to each other are same player, increases counter by 1. if different, then resets counter to 1
 		goes pair by pair through the whole column, if counter gets to 4, then returns the coordinates of the cells.
 	 * 
 	 * @param col - column number you're searching through
 	 * @param player - player's character
-	 * @return - consecInARow - true if there are 4 characters in a row vertically
+	 * @return - coords - either empty array, or array of tuples of all coordinates of winning combination
 	 */
 function verticalNInARow(col, player) {
 	var coords = [];
@@ -144,7 +151,7 @@ function verticalNInARow(col, player) {
 				//if the counter has reached the desired 4 in a row then return true
 				//want to get these coords now: r-numInARow+1 will be the row of the first in the sequence -> return array of arrays with coords for all spots?
 				for (var i = 1; i <= numInARow; i++) {
-					coords.push([ r - numInARow + i + 1, col ]); //need to add 1 at the end because the last col is the 2nd to last coord
+					coords.push([ r - numInARow + i + 1, col ]); //r is currently at the 3rd winning spot so need to add 1 to mimic being at the last spot. then subtract by numInARow and go through a loop for numInARow
 				}
 				return coords;
 			}
@@ -166,7 +173,7 @@ function checkTLBR_DiagWinner(player) {
 	var counter = 1;
 	for (var r = 0; r <= rows - numInARow; r++) {
 		for (var col = 0; col <= cols - numInARow; col++) {
-			//looks at only the possible starting places where you can make a N-length diagonal from TL to BR
+			//for loops look at only the possible starting places where you can make a N-length diagonal from TL to BR
 			for (var d = 0; d < numInARow - 1; d++) {
 				if (game.board[r + d][col + d] === player && game.board[r + d + 1][col + d + 1] === player) {
 					//starting at the (r,c) point found above, goes in a diagonal in the south-east direction to see if there are N consecutive spots (checking in pairs)
@@ -175,7 +182,6 @@ function checkTLBR_DiagWinner(player) {
 						for (var i = 0; i < numInARow; i++) {
 							coords.push([ r + i, col + i ]);
 						}
-						console.log(coords);
 						return coords;
 					}
 					//else the 2 spots are not the same player, so reset counter to 1
@@ -199,9 +205,8 @@ function checkTRBL_DiagWinner(player) {
 					counter++;
 					if (counter >= numInARow) {
 						for (var i = 0; i < numInARow; i++) {
-							coords.push([ r + i, col - i ]); //since row and column are at the top right coordinates of the diagonol, we need to add to the row coordinates since we're going down, and we need to subtract from the column coordinate since we're going left
+							coords.push([ r + i, col - i ]); //since row and column are at the top right coordinates of the diagonal, we need to add to the row coordinates since we're going down, and we need to subtract from the column coordinate since we're going left
 						}
-						console.log(coords);
 						return coords;
 					}
 				} else counter = 1;
@@ -211,40 +216,16 @@ function checkTRBL_DiagWinner(player) {
 	return coords;
 }
 
-//gets called after a move - either there was a winner, board is full, or it initiates game play for next move
-function updateGameStatus() {
-	var winner = checkWinner(game.currPlayer.color);
-	if (winner.length !== 0) {
-		console.log('WINNER');
-		highlightWinningCells(winner);
-		game.currentlyPlaying = false;
-		game.winner = game.currPlayer;
-		game.currPlayer.wins++;
-	} else if (isBoardFull()) {
-		console.log('tie');
-		game.currentlyPlaying = false;
-		game.tie = true;
-	} else {
-		initiateNextMove();
-	}
-	updateScoreBoard();
-}
-
 //resets the game to initial board, playersMoves, etc. - except keeps the win tallies
 function resetGame() {
-	var player1Wins = game.player1.wins;
-	var player2Wins = game.player2.wins;
-	game = initGame;
-	game.player1.wins = player1Wins;
-	game.player2.wins = player2Wins;
+	resetBoard();
+	game.player1.moves = [];
+	game.player2.moves = [];
 	game.currPlayer = game.player1;
-}
-
-function initiateNextMove() {
-	//game still going - change game's playerTurn and game's current player
-	game.player1Turn = !game.player1Turn; //change player turn
-	if (game.player1Turn) game.currPlayer = game.player1;
-	else game.currPlayer = game.player2;
+	game.player1Turn = true;
+	game.currentlyPlaying = true;
+	game.winner = null;
+	game.tie = false;
 }
 
 //adds player's move to the game board and players' moves array and returns the coordinates of the row/col where move was made
@@ -264,19 +245,73 @@ function move(player, col) {
 	}
 }
 
-//GUI
-//set up IDs for divs that represent the cells and add event listeners
-var rowDivs = document.querySelectorAll('.row');
-for (var rowID = 0; rowID < rowDivs.length; rowID++) {
-	//top to bottom (row 0 is above the board)
-	var cellsForRow = rowDivs[rowID].children;
-	for (var colID = 0; colID < cellsForRow.length; colID++) {
-		var cell = cellsForRow[colID];
-		cell.id = 'row' + rowID + 'Col' + colID;
-		cell.addEventListener('mouseover', placeTop);
-		cell.addEventListener('mouseout', removeTop);
-		cell.addEventListener('click', dropPiece);
+//gets called after a move - checks for winner, tie game, or if not, then it initiates game play for next move. also updates the scoreboard at the end
+function updateGameStatus() {
+	var winner = checkWinner(game.currPlayer.color);
+	//either winner, tie game, or keep playing
+	if (winner.length !== 0) {
+		highlightWinningCells(winner);
+		game.currentlyPlaying = false;
+		game.winner = game.currPlayer;
+		game.currPlayer.wins++;
+	} else if (isBoardFull()) {
+		game.currentlyPlaying = false;
+		game.tie = true;
+	} else {
+		initiateNextMove();
 	}
+	updateScoreBoard();
+}
+
+//game still going - change game's playerTurn and game's current player
+function initiateNextMove() {
+	game.player1Turn = !game.player1Turn; //change player turn
+	if (game.player1Turn) game.currPlayer = game.player1;
+	else game.currPlayer = game.player2;
+}
+
+//GUI
+setUpBoard();
+setUpResetButton();
+
+//set up IDs for divs that represent the cells and add event listeners
+function setUpBoard() {
+	var rowDivs = document.querySelectorAll('.row');
+	for (var rowID = 0; rowID < rowDivs.length; rowID++) {
+		//top to bottom (row 0 is above the board)
+		var cellsForRow = rowDivs[rowID].children;
+		for (var colID = 0; colID < cellsForRow.length; colID++) {
+			var cell = cellsForRow[colID];
+			cell.id = 'row' + rowID + 'Col' + colID; //want easy access to board's cells -> change the ID for the div to its rowID and colID
+			cell.addEventListener('mouseover', placeTop);
+			cell.addEventListener('mouseout', removeTop);
+			cell.addEventListener('click', dropPiece);
+		}
+	}
+}
+
+function setUpResetButton() {
+	var resetButton = document.querySelector('#newGameButton');
+	resetButton.addEventListener('click', resetGUI);
+}
+
+//goes through each cell and its span in the board and gets rid of any class that represents a circle or a winningCell
+function resetGUI() {
+	resetGame();
+	var rowDivs = document.querySelectorAll('.row');
+	for (var rowID = 0; rowID < rowDivs.length; rowID++) {
+		//top to bottom (row 0 is above the board)
+		var cellsForRow = rowDivs[rowID].children;
+		for (var colID = 0; colID < cellsForRow.length; colID++) {
+			var cell = cellsForRow[colID];
+			cell.classList = '';
+			var span = cell.children[0];
+			span.classList = '';
+		}
+	}
+	updateScoreBoard();
+	displayMovesHistory(game.player1);
+	displayMovesHistory(game.player2);
 }
 
 //this function is called when mouse scrolls over a column
@@ -306,7 +341,7 @@ function removeTop() {
 function dropPiece() {
 	if (game.currentlyPlaying) {
 		var col = parseInt(this.id.slice(-1)); //"this" is the div that has the event listener that was triggered - we want to grab the ID of the cell and then take the last character from the string which is the col number
-		if (guiPlayerMove(game.currPlayer, col) === null) return;
+		if (guiPlayerMove(game.currPlayer, col) === null) return; //if the move returns null (i.e invalid move - like column is full), we don't want to do anything
 		//check to see if game is still going on
 		updateGameStatus();
 
@@ -334,9 +369,11 @@ function guiPlayerMove(player, col) {
 	}
 }
 
+//called at the end of update game status - updates the scoreboard info: player's turn, winner/tie game, game score
 function updateScoreBoard() {
 	//game still going - change game's playerTurn and game's current player
 	var scoreboardInfo = document.querySelector('#scoreboardInfo');
+	//reset scoreboardInfo text and class to blank
 	scoreboardInfo.textContent = '';
 	scoreboardInfo.classList.remove('redPlayer', 'bluePlayer');
 	var currColor = game.currPlayer.color;
@@ -344,6 +381,7 @@ function updateScoreBoard() {
 		scoreboardInfo.textContent = currColor.charAt(0).toUpperCase() + currColor.slice(1) + "'s Turn";
 		scoreboardInfo.classList.add(currColor + 'Player');
 	} else {
+		//only two scenarios if game is over
 		if (game.tie) {
 			scoreboardInfo.textContent = 'Tie Game!';
 		}
@@ -356,6 +394,7 @@ function updateScoreBoard() {
 	}
 }
 
+//takes in the winningCellCoordiates from the winner function and gives each cell (div) a green border
 function highlightWinningCells(winningCellCoords) {
 	for (var i = 0; i < winningCellCoords.length; i++) {
 		var rowDisplay = winningCellCoords[i][0] + 1;
